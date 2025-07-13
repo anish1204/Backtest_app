@@ -26,9 +26,6 @@ ChartJS.register(
   Legend
 );
 
-// Inside your return:
-
-
 
 type Fundamental = {
   id: number;
@@ -67,9 +64,7 @@ export default function FundamentalsPage() {
   axios.get(`http://localhost:8000/fundamentals/${id}`).then((res) => {
     setFundamentals(res.data);
     setLoading(false);
-
-    // Optional: filter for one metric to chart
-    const revenue = res.data
+ const revenue = res.data
       .filter((f: Fundamental) => f.metric === "financials_Total Revenue")
       .sort((a: Fundamental, b: Fundamental) => a.date.localeCompare(b.date));
 

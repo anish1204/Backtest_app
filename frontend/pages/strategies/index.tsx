@@ -9,7 +9,7 @@ type Strategy = {
   parameters: any;
 };
 
-// Define some standard templates
+
 const strategyTemplates = [
   {
     name: "Top ROE",

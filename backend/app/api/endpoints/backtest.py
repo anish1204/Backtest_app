@@ -16,8 +16,6 @@ router = APIRouter()
 
 @router.post("/backtest/run")
 def run_backtest(req: BacktestRunRequest, db: Session = Depends(get_db)):
-    # Call your backtest engine here
-    # Save results to BacktestResult table
     return {"message": "Backtest started", "strategy_id": req.strategy_id}
 
 
@@ -27,7 +25,6 @@ def run_backtest(req: BacktestRunRequest, db: Session = Depends(get_db)):
     if not strategy:
         raise HTTPException(status_code=404, detail="Strategy not found")
 
-    # Load top 10 companies by market cap (or you can adapt this to strategy.params)
     companies = (
         db.query(models.Company)
         .order_by(models.Company.market_cap.desc())
@@ -36,7 +33,6 @@ def run_backtest(req: BacktestRunRequest, db: Session = Depends(get_db)):
     )
     company_ids = [c.id for c in companies]
 
-    # Load price data
     prices = (
         db.query(models.Price)
         .filter(models.Price.company_id.in_(company_ids))
@@ -48,7 +44,6 @@ def run_backtest(req: BacktestRunRequest, db: Session = Depends(get_db)):
     if not prices:
         raise HTTPException(status_code=400, detail="No price data in selected period")
 
-    # Prepare DataFrame
     df = pd.DataFrame([
         {'date': p.date, 'company_id': p.company_id, 'close': float(p.close)}
         for p in prices
@@ -60,7 +55,6 @@ def run_backtest(req: BacktestRunRequest, db: Session = Depends(get_db)):
     portfolio_returns = returns.mean(axis=1)
     equity_curve = (1 + portfolio_returns).cumprod()
 
-    # Metrics
     total_return = equity_curve.iloc[-1] - 1
     n_years = (equity_curve.index[-1] - equity_curve.index[0]).days / 365
     cagr = (equity_curve.iloc[-1])**(1/n_years) - 1 if n_years > 0 else 0

@@ -11,7 +11,6 @@ router = APIRouter(
 
 @router.post("/", response_model=Company)
 def create_company(company: CompanyCreate, db: Session = Depends(get_db)):
-    # optional: check if company already exists
     existing = db.query(models.Company).filter_by(symbol=company.symbol).first()
     if existing:
         raise HTTPException(status_code=400, detail="Company already exists")
