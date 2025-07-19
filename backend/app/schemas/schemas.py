@@ -38,6 +38,8 @@ class BacktestRunRequest(BaseModel):
     strategy_id: int
     start_date: date
     end_date: date
+    initial_capital: Optional[float] = 100000
+
 
 class FundamentalResponse(BaseModel):
     id: int

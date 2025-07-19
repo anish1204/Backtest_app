@@ -83,7 +83,7 @@ export default function Backtest() {
       : null;
 
   return (
-    <div className="p-8">
+    <div className="lg:mt-[6vw] p-8">
       <h1 className="text-2xl font-bold mb-4">📈 Run Backtest</h1>
 
       <div className="space-y-2 mb-4">

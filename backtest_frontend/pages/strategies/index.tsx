@@ -97,7 +97,7 @@ export default function StrategiesPage() {
   if (loading) return <div className="p-4">Loading...</div>;
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 lg:mt-[7vw]">
       <h1 className="text-2xl font-bold mb-4">Strategies</h1>
 
       <div className="mb-8 space-y-2">
