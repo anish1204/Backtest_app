@@ -2,9 +2,12 @@ fastapi==0.111.1
 uvicorn==0.30.3
 sqlalchemy==2.0.31
 psycopg2-binary==2.9.9
+python-3.11.9
 alembic==1.13.2
 pydantic==2.7.4
 pydantic-core==2.18.4
 pandas==2.2.2
 numpy==1.26.4
-yfinance==0.2.53
+yfinance==0.2.40
+certifi==2024.7.4
+
