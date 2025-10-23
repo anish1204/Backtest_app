@@ -8,7 +8,7 @@ export default function NewStrategy() {
   const router = useRouter();
 
   const handleSubmit = async () => {
-    await fetch("http://localhost:8000/strategies/", {
+    await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/strategies/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, description, parameters: JSON.parse(parameters) }),

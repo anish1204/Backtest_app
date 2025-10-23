@@ -44,7 +44,7 @@ export default function PnlChart({
     useEffect(() => {
         if (!selectedCompanyId) return;
 
-        fetch(`http://localhost:8000/${selectedCompanyId}/monthly_pnl`)
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/${selectedCompanyId}/monthly_pnl`)
             .then(res => res.json())
             .then(setPnldata)
             .catch(err => console.error(err));

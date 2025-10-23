@@ -44,7 +44,7 @@ export default function PricesPage() {
   useEffect(() => {
     if (!id) return;
     axios
-      .get(`http://localhost:8000/prices/${id}`)
+      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/prices/${id}`)
       .then((res) => {
         setPrices(res.data);
         setLoading(false);

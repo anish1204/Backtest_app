@@ -23,7 +23,7 @@ export default function Backtest() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:8000/strategies/")
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/strategies/`)
       .then(res => res.json())
       .then(setStrategies)
       .catch(err => setError("Failed to fetch strategies"));
@@ -39,7 +39,7 @@ export default function Backtest() {
     setResult(null);
 
     try {
-      const res = await fetch("http://localhost:8000/run", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/run`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

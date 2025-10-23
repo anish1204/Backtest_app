@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 import pandas as pd
 from app.models import models
+import yfinance as yf
 from app.schemas.schemas import CompanyCreate, Company
 
 router = APIRouter(
@@ -21,6 +22,20 @@ def create_company(company: CompanyCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_company)
     return db_company
+
+
+@router.get("/search/{query}")
+def search_stock(query: str):
+    try:
+        ticker = yf.Ticker(query)
+        info = ticker.info
+        return {
+            "symbol": info.get("symbol", query),
+            "name": info.get("longName", query),
+            "sector": info.get("sector", "Unknown"),
+        }
+    except Exception:
+        return {"error": "Not found"}
 
 
 @router.get("/", response_model=list[Company])

@@ -55,7 +55,7 @@ export default function StrategiesPage() {
   }, []);
 
   const fetchStrategies = () => {
-    axios.get("http://localhost:8000/strategies/").then((res) => {
+    axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/strategies/`).then((res) => {
       setStrategies(res.data);
       setLoading(false);
     });
@@ -77,7 +77,7 @@ export default function StrategiesPage() {
 
   const createStrategy = () => {
     axios
-      .post("http://localhost:8000/strategies/", {
+      .post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/strategies/`, {
         name,
         description,
         parameters: JSON.parse(parameters),

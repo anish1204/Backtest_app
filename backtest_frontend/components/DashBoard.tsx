@@ -21,7 +21,7 @@ const Dashboard = () => {
 
     // top 10 companies
     useEffect(() => {
-        fetch("http://localhost:8000/companies/top10")
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/companies/top10`)
             .then(res => res.json())
             .then(data => {
                 setTop10Companies(data);
@@ -33,7 +33,7 @@ const Dashboard = () => {
     // fetch monthly pnl for selected company
     useEffect(() => {
         if (!selectedCompany) return;
-        fetch(`http://localhost:8000/companies/${selectedCompany}/monthly_pnl`)
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/companies/${selectedCompany}/monthly_pnl`)
             .then(res => res.json())
             .then(setPnlData)
             .catch(err => console.error(err));
@@ -41,7 +41,7 @@ const Dashboard = () => {
 
 
     useEffect(() => {
-        fetch("http://localhost:8000/strategies/")
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/strategies/`)
             .then((res) => res.json())
             .then((data) => {
                 setStrategies(data);
@@ -74,7 +74,7 @@ const Dashboard = () => {
         setResult(null);
 
         try {
-            const res = await fetch("http://localhost:8000/run", {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/run`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

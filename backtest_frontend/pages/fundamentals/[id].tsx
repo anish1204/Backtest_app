@@ -48,7 +48,7 @@ export default function FundamentalsPage() {
     if (!id) return;
 
     axios
-      .get(`http://localhost:8000/fundamentals/${id}`)
+      .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/fundamentals/${id}`)
       .then((res) => {
         setFundamentals(res.data);
         setLoading(false);
@@ -61,7 +61,7 @@ export default function FundamentalsPage() {
   useEffect(() => {
   if (!id) return;
 
-  axios.get(`http://localhost:8000/fundamentals/${id}`).then((res) => {
+  axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/fundamentals/${id}`).then((res) => {
     setFundamentals(res.data);
     setLoading(false);
  const revenue = res.data

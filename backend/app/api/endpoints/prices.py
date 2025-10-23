@@ -2,23 +2,45 @@ from fastapi import APIRouter, Depends,HTTPException
 from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app import models, schemas
+import yfinance as yf
+from datetime import datetime, timedelta
 from app.schemas.schemas import PriceCreate
 from app.models.models import Price
 
 router = APIRouter()
 
 
-@router.get("/prices/{company_id}")
-def get_prices(company_id: int, db: Session = Depends(get_db)):
-    prices = db.query(Price).filter_by(company_id=company_id).all()
-    if not prices:
-        raise HTTPException(status_code=404, detail="No prices found")
-    return prices
+@router.get("/prices/{symbol}")
+def get_prices(symbol: str):
+    try:
+        # Download last 6 months of daily prices
+        data = yf.download(symbol, period="6mo", interval="1d")
+
+        if data.empty:
+            raise HTTPException(status_code=404, detail=f"No price data found for {symbol}")
+
+        # Convert to JSON-friendly format
+        prices = []
+        for index, row in data.iterrows():
+            prices.append({
+                "date": index.strftime("%Y-%m-%d"),
+                "open": round(float(row["Open"]), 2),
+                "high": round(float(row["High"]), 2),
+                "low": round(float(row["Low"]), 2),
+                "close": round(float(row["Close"]), 2),
+                "volume": int(row["Volume"])
+            })
+
+        return {
+            "symbol": symbol.upper(),
+            "count": len(prices),
+            "data": prices
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching data for {symbol}: {str(e)}")
+
 
 @router.post("/prices/")
-def create_price(price: PriceCreate, db: Session = Depends(get_db)):
-    db_price = models.Price(**price.dict())
-    db.add(db_price)
-    db.commit()
-    db.refresh(db_price)
-    return db_price
+def create_price():
+    raise HTTPException(status_code=405, detail="Manual price creation disabled — data fetched live from yfinance")

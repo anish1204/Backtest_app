@@ -41,6 +41,39 @@ class BacktestRunRequest(BaseModel):
     initial_capital: Optional[float] = 100000
 
 
+# New Backtest Strategy Request 
+class BacktestRequest(BaseModel):
+    strategy:str
+    params:Dict[str,float]
+    start_date:Optional[str]=None
+    end_date:Optional[str]=None
+
+class Summary(BaseModel):
+    total_return :float
+    win_rate:float
+    max_drawdown:float
+
+class EquityPoint(BaseModel):
+    date: str       # ✅ use string for ISO date
+    value: float
+
+
+class Trade(BaseModel):
+    entry_date: str
+    exit_date: str
+    entry_price: float
+    exit_price: float
+    return_pct: float
+    
+# class Trade(BaseModel):
+class BacktestResponse(BaseModel):
+    summary : Summary
+    equity_curve:List[EquityPoint]
+    trades:List[Trade]
+
+
+
+
 class FundamentalResponse(BaseModel):
     id: int
     company_id: int

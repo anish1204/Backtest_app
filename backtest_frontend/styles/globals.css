@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -17,5 +20,44 @@
 }
 
 body {
+  background-color: #f5ffe3db;
   
+}
+::-webkit-scrollbar {
+  width: 10px;              /* width of the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f100;       /* track (background) color */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgb(20, 83, 45);  /* scrollbar color */
+  border-radius: 8px;            
+  height: 3px;     /* round edges */
+  border: 2px solid #f1f1f1;          /* space around thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(17, 70, 38);  /* slightly darker on hover */
+}
+
+.cormorant {
+  font-family: "Cormorant", serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.roboto {
+  font-family: "Roboto", sans-serif;
+  font-optical-sizing: auto;
+  /* font-weight: <weight>; */
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+.content{
+  @apply lg:text-[0.933vw] text-[0.9rem]
 }

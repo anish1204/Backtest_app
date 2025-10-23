@@ -11,6 +11,8 @@ import {
     Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import Button from "./Button";
+import Link from "next/link";
 
 ChartJS.register(
     CategoryScale,
@@ -32,10 +34,12 @@ type Price = {
 };
 
 interface StockProps {
+    name:any;
     id: number | null;
+    symbol:any;
 }
 
-const StockDetail: React.FC<StockProps> = ({ id }) => {
+const StockDetail: React.FC<StockProps> = ({symbol,name, id }) => {
     const [prices, setPrices] = useState<Price[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -44,9 +48,9 @@ const StockDetail: React.FC<StockProps> = ({ id }) => {
 
         setLoading(true);
         axios
-            .get(`http://localhost:8000/prices/${id}`)
+            .get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/prices/${symbol}`)
             .then((res) => {
-                setPrices(res.data);
+                setPrices(res.data.data || []);
                 setLoading(false);
             })
             .catch((err) => {
@@ -101,7 +105,7 @@ const StockDetail: React.FC<StockProps> = ({ id }) => {
             },
             title: {
                 display: true,
-                text: `Prices for Company ID: ${id}`,
+                text: `Prices`,
             },
         },
         scales: {
@@ -114,10 +118,18 @@ const StockDetail: React.FC<StockProps> = ({ id }) => {
     };
 
     return (
-        <div className="border-[1px] border-gray-200 lg:min-h-[45vw] w-[80%]">
-            <div className="container mx-auto p-4">
-                <h1 className="text-2xl font-bold mb-4">Price Chart</h1>
+        <div className=" lg:min-h-[30vw] max-lg:h-[350px] w-[100%]">
+            <div className="container border-[1px]  border-gray-200 mx-auto p-4">
+                <h1 className="text-2xl font-bold mb-4">{name}</h1>
                 <Line options={options} data={data} />
+            </div>
+            <div className="flex max-lg:flex-col gap-[1rem] mt-[1rem] max-lg:w-fit lg:mt-[1vw] lg:gap-[1vw]">
+                <Link href={`companies/${id}?symbol=${symbol}`}>
+                    <Button color={"yellow"} title="Detail Analysis" />
+                </Link>
+                <div onClick={()=>{}}>
+                    <Button color={""} title="Check News" />
+                </div>
             </div>
         </div>
     );

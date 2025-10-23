@@ -7,20 +7,27 @@ const index = () => {
 
 
   return (
-    <div className="min-h-screen w-full bg-white">
+    <>
+    <div className="min-h-screen max-lg:px-[0.9rem] w-full bg-[#f5ffe3]">
 
-      <div className='w-full flex-col lg:gap-[1vw] h-[100vh] flex justify-center items-center'>
-        <h1 className='text-black text-lg'>
-          Welcome to Backtesting App
+      <div className='w-full flex-col gap-[1rem] lg:gap-[1vw] h-[100vh] flex justify-center items-center'>
+        <h1 className='text-black cormorant text-[2rem]  lg:text-[4vw]'>
+          TradeMo
         </h1>
+        <p className='roboto text-center text-[0.8rem] lg:text-[0.93vw] lg:mb-[0.4vw]'>
+          A full fledge place for investors and fund manangers to analyze, track and test their strategies.
+        </p>
         <div>
 
           <Link href={"/companies"}>
-            <Button title='Start Here' />
+            <Button color={"green"} title='Start Testing' />
           </Link>
         </div>
       </div>
     </div>
+    
+    </>
+
   )
 }
 
