@@ -1,3 +1,4 @@
+"use client";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import {
@@ -9,20 +10,18 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import Backtest from "../backtest";
 import BacktestPanel from "@/components/BacktestPanel";
 
 export default function CompanyDetail() {
   const router = useRouter();
-  const { id } = router.query;
+  const { id, symbol } = router.query;
+
   const [prices, setPrices] = useState<any[]>([]);
   const [fundamentals, setFundamentals] = useState<any>({});
   const [company, setCompany] = useState<any>({});
-
   const [metric, setMetric] = useState("close");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const { symbol } = router?.query;
 
   useEffect(() => {
     if (!id) return;
@@ -34,8 +33,7 @@ export default function CompanyDetail() {
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/prices/${symbol}`)
       .then((res) => res.json())
       .then((data) => {
-        const priceArray = data.data || []; // ✅ Extract the real array
-        // ensure sorted ascending by date
+        const priceArray = data.data || [];
         const sorted = priceArray.sort(
           (a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime()
         );
@@ -43,17 +41,35 @@ export default function CompanyDetail() {
       })
       .catch((err) => console.error("Error fetching prices:", err));
 
-
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/fundamentals/${id}`)
       .then((res) => res.json())
       .then(setFundamentals);
   }, [id]);
 
   useEffect(() => {
-    console.log(company, 'test')
-  }, [company])
+  if (!symbol) return;
 
-  // Filter prices by date range
+  // Construct query parameters
+  const params = new URLSearchParams();
+  if (fromDate) params.append("start_date", fromDate);
+  if (toDate) params.append("end_date", toDate);
+
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/prices/${symbol}${
+    params.toString() ? `?${params.toString()}` : ""
+  }`;
+
+  fetch(url)
+    .then((res) => res.json())
+    .then((data) => {
+      const priceArray = data.data || [];
+      const sorted = priceArray.sort(
+        (a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
+      setPrices(sorted);
+    })
+    .catch((err) => console.error("Error fetching prices:", err));
+}, [symbol, fromDate, toDate]);
+
   const filteredPrices = prices.filter((p) => {
     const d = new Date(p.date);
     if (fromDate && d < new Date(fromDate)) return false;
@@ -61,51 +77,47 @@ export default function CompanyDetail() {
     return true;
   });
 
-  // Compute summary stats for selected metric
   const values = filteredPrices.map((p) => p[metric]);
   const summary = values.length
     ? {
-      avg: (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2),
-      min: Math.min(...values).toFixed(2),
-      max: Math.max(...values).toFixed(2),
-    }
+        avg: (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2),
+        min: Math.min(...values).toFixed(2),
+        max: Math.max(...values).toFixed(2),
+      }
     : { avg: "—", min: "—", max: "—" };
 
   return (
-    <div className="min-h-screen bg-[#f5ffe3] lg:mt-[3vw] p-8">
+    <div className="min-h-screen bg-[#0b0f19] text-white px-6 lg:px-10 pt-[6rem] pb-10">
       {/* Header */}
-      <div className="mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-center">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-10">
         <div>
-          <h1 className="text-3xl font-bold text-green-800 roboto">
+          <h1 className="text-3xl lg:text-4xl font-bold text-[#a78bfa] tracking-wide">
             {company.name || ""}
           </h1>
-          {/* <p className="text-gray-700 text-sm mt-1">
-            {company.symbol} • {company.sector}
-          </p> */}
+          {company.symbol && (
+            <p className="text-gray-400 text-sm mt-1">
+              {company.symbol} • {company.sector}
+            </p>
+          )}
         </div>
 
+        <button
+          onClick={() => router.back()}
+          className="mt-4 lg:mt-0 bg-gradient-to-r from-[#6a5acd] to-[#805ad5] text-white rounded-md px-5 py-2 font-medium hover:scale-105 transition-all shadow-lg"
+        >
+          ← Back
+        </button>
       </div>
 
       {/* Filter Controls */}
-      <div className="flex flex-col w-100 justify-between lg:flex-row gap-4 mb-6 bg-white p-4 rounded-lg shadow">
-        <div>
-
-          <button
-            onClick={() => router.back()}
-            className="mt-4 lg:mt-0 bg-green-800 text-white rounded-lg px-4 py-2 hover:bg-green-900 transition"
-          >
-            ← Back
-          </button>
-        </div>
-        <div className="flex gap-2  items-center">
-
+      <div className="flex flex-col lg:flex-row justify-between gap-4 bg-[#141a29]/60 backdrop-blur-lg border border-[#23283d] p-5 rounded-xl shadow-lg mb-10">
+        <div className="flex gap-4 items-center flex-wrap">
           <div>
-
-            <label className="text-green-900 font-semibold">Metric:</label>
+            <label className="text-gray-300 font-semibold mr-2">Metric:</label>
             <select
               value={metric}
               onChange={(e) => setMetric(e.target.value)}
-              className="border rounded p-2 outline-none"
+              className="bg-[#101524] border border-[#23283d] text-white rounded-md p-2 outline-none"
             >
               <option value="close">Close</option>
               <option value="high">High</option>
@@ -113,71 +125,90 @@ export default function CompanyDetail() {
               <option value="avg">Average</option>
             </select>
           </div>
-          <div className="flex gap-2 items-center">
-            <label className="text-green-900 font-semibold">From:</label>
+
+          <div className="flex items-center gap-2">
+            <label className="text-gray-300 font-semibold">From:</label>
             <input
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="border rounded p-2 outline-none"
+              className="bg-[#101524] border border-[#23283d] text-white rounded-md p-2 outline-none"
             />
           </div>
-          <div className="flex gap-2 items-center">
-            <label className="text-green-900 font-semibold">To:</label>
+
+          <div className="flex items-center gap-2">
+            <label className="text-gray-300 font-semibold">To:</label>
             <input
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="border rounded p-2 outline-none"
+              className="bg-[#101524] border border-[#23283d] text-white rounded-md p-2 outline-none"
             />
           </div>
         </div>
-
       </div>
 
-      {/* Price Chart */}
-      <div className="bg-white shadow-md p-6 rounded-lg mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-green-800">
+      {/* Chart Section */}
+      <div className="bg-[#141a29]/70 border border-[#23283d] p-6 rounded-xl shadow-2xl backdrop-blur-lg">
+        <h2 className="text-xl font-semibold mb-5 text-[#a78bfa]">
           📊 {metric.charAt(0).toUpperCase() + metric.slice(1)} Price Chart
         </h2>
 
         {filteredPrices.length > 0 ? (
           <>
-            <ResponsiveContainer width="100%" height={350}>
+            <ResponsiveContainer width="100%" height={400}>
               <LineChart data={filteredPrices}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} domain={["auto", "auto"]} />
-                <Tooltip />
+                <CartesianGrid stroke="rgba(255,255,255,0.05)" />
+                <XAxis dataKey="date" tick={{ fontSize: 12, fill: "#aaa" }} />
+                <YAxis
+                  tick={{ fontSize: 12, fill: "#aaa" }}
+                  domain={["auto", "auto"]}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#101524",
+                    border: "1px solid #6a5acd",
+                    borderRadius: "8px",
+                    color: "#fff",
+                  }}
+                />
                 <Line
                   type="monotone"
                   dataKey={metric}
-                  stroke="#14532d"
-                  strokeWidth={2}
+                  stroke="#00e6e6"
+                  strokeWidth={2.5}
                   dot={false}
+                  activeDot={{ r: 4, strokeWidth: 2, stroke: "#a78bfa" }}
                 />
               </LineChart>
             </ResponsiveContainer>
 
             {/* Summary Stats */}
-            <div className="mt-6 flex flex-wrap gap-4 justify-around bg-[#f1f9bd] rounded-lg p-4">
-              <div className="text-green-900 font-semibold">📈 Max: {summary.max}</div>
-              <div className="text-green-900 font-semibold">📉 Min: {summary.min}</div>
-              <div className="text-green-900 font-semibold">📊 Avg: {summary.avg}</div>
+            <div className="mt-8 flex flex-wrap justify-around gap-6 bg-[#101524] border border-[#23283d] rounded-xl p-5">
+              <div className="text-[#00e676] font-semibold text-lg">
+                📈 Max: {summary.max}
+              </div>
+              <div className="text-[#ff4081] font-semibold text-lg">
+                📉 Min: {summary.min}
+              </div>
+              <div className="text-[#a78bfa] font-semibold text-lg">
+                📊 Avg: {summary.avg}
+              </div>
             </div>
           </>
         ) : (
-          <p className="text-gray-600 text-sm">No price data in selected range.</p>
+          <p className="text-gray-500 text-sm">
+            No price data in selected range.
+          </p>
         )}
       </div>
-      {
-        symbol && (
 
+      {/* Backtest Panel */}
+      {symbol && (
+        <div className="mt-10">
           <BacktestPanel symbol={symbol} />
-
-        )
-      }
-
+        </div>
+      )}
     </div>
   );
 }

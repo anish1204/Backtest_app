@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api.endpoints import companies, prices, fundamentals, strategies, backtest
+from app.api.endpoints import companies, prices, fundamentals, strategies, backtest ,news
 import requests
 
 
@@ -19,6 +19,7 @@ app.include_router(prices.router)
 app.include_router(fundamentals.router)
 app.include_router(strategies.router)
 app.include_router(backtest.router)
+app.include_router(news.router)
 
 
 @app.get("/test-yf")

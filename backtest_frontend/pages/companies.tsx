@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 import { niftyCompanies } from "../public/data/nifty50";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,15 +14,12 @@ export default function Companies() {
   const [symbol, setSymbol] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [liveResult, setLiveResult] = useState<any | null>(null);
 
-  // 🧩 Load static data initially
   useEffect(() => {
     setCompanies(niftyCompanies);
     setFilteredCompanies(niftyCompanies);
   }, []);
 
-  // 🔍 Filter logic with fallback
   useEffect(() => {
     if (searchName.trim() === "" && searchSector.trim() === "") {
       setFilteredCompanies(companies);
@@ -36,27 +34,22 @@ export default function Companies() {
 
     if (filtered.length > 0) {
       setFilteredCompanies(filtered);
-      setLiveResult(null);
     } else if (searchName.trim() !== "") {
-      // fallback to live search via backend
       setLoading(true);
       fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/search/${encodeURIComponent(searchName)}`)
         .then((res) => res.json())
         .then((data) => {
           setLoading(false);
           if (data.error || !data.symbol) {
-            setLiveResult(null);
             setFilteredCompanies([]);
           } else {
-            // show as a single card result
             const dynamicCompany = {
-              id: 9999, // temporary unique id
+              id: 9999,
               name: data.name,
               symbol: data.symbol,
               sector: data.sector || "Unknown",
               fromAPI: true,
             };
-            setLiveResult(dynamicCompany);
             setFilteredCompanies([dynamicCompany]);
           }
         })
@@ -64,7 +57,6 @@ export default function Companies() {
     }
   }, [searchName, searchSector, companies]);
 
-  // ✨ Slide animation
   const slideVariants = {
     hidden: { x: "100%" },
     visible: { x: 0 },
@@ -72,68 +64,88 @@ export default function Companies() {
   };
 
   return (
-    <div className="flex lg:mt-[4vw] relative overflow-hidden">
-      {/* Left Side — Company List */}
-      <div className="p-8 bg-[#f5ffe3] lg:min-h-screen overflow-y-auto w-[100vw] lg:w-[100vw] border-r">
+    <div className="relative min-h-screen bg-gradient-to-br from-[#0b0f19] via-[#141a29] to-[#1e1b3a] text-white overflow-hidden">
+      {/* Background Glow */}
+      <div className="absolute top-0 left-1/3 w-[800px] h-[800px] bg-[#6a5acd]/20 blur-[180px] rounded-full -translate-x-1/2 z-0"></div>
 
-        {/* 🔍 Search Fields */}
-        <div className="flex flex-col lg:flex-row gap-2 mb-4">
-          <input
-            type="text"
-            placeholder="Search by name"
-            className="border p-2 rounded-md outline-none w-full lg:w-2/12"
-            value={searchName}
-            onChange={(e) => setSearchName(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Search by sector"
-            className="border p-2 rounded-md outline-none w-full lg:w-2/12"
-            value={searchSector}
-            onChange={(e) => setSearchSector(e.target.value)}
-          />
+      <div className="relative z-10 p-6 lg:p-10">
+        {/* Page Title */}
+        <div className="mb-8 flex flex-col items-center text-center">
+          <h1 className="text-3xl lg:mt-[3rem] lg:text-4xl font-bold text-[#a78bfa] tracking-wide">
+            Explore NIFTY 50 Companies
+          </h1>
+          <p className="text-gray-400 mt-2 text-sm lg:text-base max-w-2xl">
+            Analyze, track and test investment strategies with real-time company data and market metrics.
+          </p>
         </div>
 
-        {/* 💫 Loading state */}
-        {loading && (
-          <p className="text-sm text-gray-500 mb-2">Searching live...</p>
-        )}
+        {/* Search Panel */}
+        <div className="flex flex-col lg:flex-row gap-3 mb-10 bg-[#101524]/60 border border-[#23283d] backdrop-blur-xl rounded-2xl p-5 shadow-lg">
+          <div className="flex items-center gap-2 w-full lg:w-1/3 bg-[#141a29] border border-[#23283d] px-4 py-2 rounded-lg">
+            <span className="text-[#6a5acd]">🔍</span>
+            <input
+              type="text"
+              placeholder="Search by name"
+              className="bg-transparent outline-none text-white placeholder-gray-400 w-full"
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-2 w-full lg:w-1/3 bg-[#141a29] border border-[#23283d] px-4 py-2 rounded-lg">
+            <span className="text-[#00e6e6]">🏢</span>
+            <input
+              type="text"
+              placeholder="Search by sector"
+              className="bg-transparent outline-none text-white placeholder-gray-400 w-full"
+              value={searchSector}
+              onChange={(e) => setSearchSector(e.target.value)}
+            />
+          </div>
+          {loading && (
+            <p className="text-sm text-gray-400 self-center">Searching live...</p>
+          )}
+        </div>
 
-        {/* 🏢 Companies List */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Companies Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCompanies.map((c) => (
-            <div
+            <motion.div
               key={c.id}
-              className={`border hover:scale-105 bg-white transition-all duration-150 p-4 rounded shadow ${
-                c.fromAPI ? "border-blue-400" : ""
-              }`}
+              whileHover={{ y: -4, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 200, damping: 15 }}
+              className={`relative p-5 rounded-2xl bg-[#141a29]/80 backdrop-blur border border-[#23283d] hover:border-[#6a5acd] shadow-md hover:shadow-[#6a5acd]/40 transition-all duration-300`}
             >
-              <h2 className="font-semibold lg:text-[1vw] roboto">
-                {c.name}{" "}
-                {c.fromAPI && (
-                  <span className="text-xs text-blue-500">(Live Result)</span>
-                )}
-              </h2>
-              <p className="content roboto">{c.symbol}</p>
-              <p className="content roboto">{c.sector}</p>
-              <div className="w-full flex justify-end">
-                <button
-                  onClick={() => {
-                    setCompanyId(c.id);
-                    setCompanyName(c.name);
-                    setSymbol(c.symbol);
-                  }}
-                  className="text-blue-500 content-sm mt-2"
-                >
-                  <Button title="View Details" />
-                </button>
+              <div className="flex flex-col h-full justify-between">
+                <div>
+                  <h2 className="font-semibold text-lg mb-1 text-white flex items-center gap-2">
+                    {c.name}
+                    {c.fromAPI && (
+                      <span className="text-xs text-[#6a5acd]">(Live)</span>
+                    )}
+                  </h2>
+                  <p className="text-sm text-gray-400">{c.symbol}</p>
+                  <p className="text-sm text-gray-500 mb-4">{c.sector}</p>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => {
+                      setCompanyId(c.id);
+                      setCompanyName(c.name);
+                      setSymbol(c.symbol);
+                    }}
+                    className="bg-gradient-to-r from-[#6a5acd] to-[#805ad5] px-4 py-2 rounded-lg text-white text-sm font-medium shadow-md hover:shadow-[#6a5acd]/50 hover:scale-105 transition-all"
+                  >
+                    View Details
+                  </button>
+                </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
 
-      {/* Offcanvas — Stock Details */}
+      {/* Stock Details Drawer */}
       <AnimatePresence>
         {companyId && (
           <motion.div
@@ -143,12 +155,13 @@ export default function Companies() {
             animate="visible"
             exit="exit"
             transition={{ type: "tween", duration: 0.4 }}
-            className="fixed top-0 right-0 h-full w-[80vw] lg:w-[60vw] bg-white shadow-2xl z-50 overflow-y-auto"
+            className="fixed top-0 right-0 h-full w-[85vw] lg:w-[60vw] bg-[#101524] text-white shadow-2xl z-50 overflow-y-auto"
           >
-            <div className="flex justify-end items-center p-4 border-b">
+            <div className="flex justify-between items-center p-4 border-b border-gray-800">
+              <h2 className="text-lg font-semibold text-[#6a5acd]">{companyName}</h2>
               <button
                 onClick={() => setCompanyId(null)}
-                className="text-gray-500 hover:text-black text-lg font-bold"
+                className="text-gray-400 hover:text-white text-2xl font-bold"
               >
                 ✕
               </button>
@@ -160,11 +173,11 @@ export default function Companies() {
         )}
       </AnimatePresence>
 
-      {/* Background overlay when open */}
+      {/* Overlay */}
       <AnimatePresence>
         {companyId && (
           <motion.div
-            className="fixed inset-0 bg-black bg-opacity-40 z-40"
+            className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
